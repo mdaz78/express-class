@@ -4,6 +4,8 @@ const port = 3001;
 
 const app = express();
 
+app.use(express.json());
+
 app.get("/", (req, res) => {
   const user = JSON.parse(req.query.user);
 
@@ -35,6 +37,43 @@ app.get("/", (req, res) => {
     healthyKidneys,
     unhealthyKidneys,
     numberOfKidneys,
+  });
+});
+
+app.post("/", (req, res) => {
+  const body = req.body;
+
+  console.log({ patients });
+
+  if (!body.user || !body.isHealthy) {
+    return res.status(400).send("Bad Request");
+  }
+
+  const user = patients.find((p) => p.name === body.user);
+
+  if (!user) {
+    patients.push({
+      name: body.user,
+      kidneys: [
+        {
+          healthy: body.isHealthy,
+        },
+      ],
+    });
+
+    return res.status(201).json({
+      message: "Successfully added patient",
+    });
+  }
+
+  user.kidneys.push({
+    healthy: body.isHealthy,
+  });
+
+  console.log({ patients });
+
+  res.status(201).json({
+    message: `Successfully added kidney for ${body.user}`,
   });
 });
 
